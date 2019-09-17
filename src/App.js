@@ -1,26 +1,43 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import SearchBar from './Components/searchbar';
+import api from './Services/api';
+import VideoList from './Components/videolist';
+import VideoDetail from './Components/videodetail';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+export default class App extends React.Component {
+    
+    constructor(props){
+       super(props);
+       this.onTermSubmit = this.onTermSubmit.bind(this); 
+       this.onVideoSelect = this.onVideoSelect.bind(this);
+       this.state = {
+           videos: [],
+           selectedVideo: null
+       }
+    }
+
+    onTermSubmit(term) {
+        api.get('/search',
+        {
+          params: {q:term}
+        }).then(res => {
+            this.setState({videos: res.data.items});
+        })
+    }
+
+    onVideoSelect(video){
+      console.log('from the app', video);
+      this.setState({selectedVideo: video})
+    }
+    
+    render(){
+        return (
+            <div>
+              <SearchBar onFormSubmit ={this.onTermSubmit}/>
+              <VideoList videos ={this.state.videos} selectVideo = {this.onVideoSelect}/>
+              <VideoDetail video = {this.state.selectedVideo} />
+             </div>   
+
+        )
+    }
 }
-
-export default App;
